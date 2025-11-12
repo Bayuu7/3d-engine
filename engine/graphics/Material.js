@@ -1,18 +1,27 @@
 /**
- * Placeholder
+ * Material
  * --------------------------------------------------------------------
- * Intended role:
- * - This module belongs to a subsystem outlined in the project tree.
+ * Role:
+ * - Wraps a Shader and provides a uniform setting API.
  *
- * Expansion guide:
- * - Define clear responsibilities and data flow for the subsystem.
- * - Implement classes and functions with strong cohesion and low coupling.
- * - Ensure integration with Engine via events/state/config as needed.
- *
- * Examples of integration:
- * - Editor tools talk to Engine and SceneManager via events.
- * - Resources loaders connect to AssetManager and cache.
- * - Physics integrates Transform and collisions with Scene entities.
- * - Networking mirrors entity state and input across clients/servers.
+ * Integration:
+ * - Mesh uses Material to bind the shader and push per-draw uniforms
+ *   like model/view/projection matrices.
  */
-export const TODO = true;
+export class Material {
+  constructor(shader) {
+    this.shader = shader;
+    /** Arbitrary flags for rendering behavior (e.g., wireframe). */
+    this.flags = { wireframe: false };
+  }
+
+  use() {
+    this.shader.use();
+  }
+
+  setMat4(name, mat4) {
+    const gl = this.shader.gl;
+    const loc = this.shader.getUniformLocation(name);
+    gl.uniformMatrix4fv(loc, false, mat4.elements);
+  }
+}

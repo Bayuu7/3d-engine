@@ -1,18 +1,27 @@
 /**
- * Placeholder
+ * Logger
  * --------------------------------------------------------------------
- * Intended role:
- * - This module belongs to a subsystem outlined in the project tree.
+ * Role:
+ * - Minimal structured logger with levels and enable flags.
  *
- * Expansion guide:
- * - Define clear responsibilities and data flow for the subsystem.
- * - Implement classes and functions with strong cohesion and low coupling.
- * - Ensure integration with Engine via events/state/config as needed.
- *
- * Examples of integration:
- * - Editor tools talk to Engine and SceneManager via events.
- * - Resources loaders connect to AssetManager and cache.
- * - Physics integrates Transform and collisions with Scene entities.
- * - Networking mirrors entity state and input across clients/servers.
+ * Integration:
+ * - Used across subsystems for consistent logging.
  */
-export const TODO = true;
+export class Logger {
+  constructor(namespace = 'app') {
+    this.namespace = namespace;
+    /** Toggle to enable/disable logs globally at runtime. */
+    this.enabled = true;
+    /** Current level threshold: 'debug' | 'info' | 'warn' | 'error' */
+    this.level = 'debug';
+    this._order = { debug: 0, info: 1, warn: 2, error: 3 };
+  }
+  _should(level) {
+    if (!this.enabled) return false;
+    return this._order[level] >= this._order[this.level];
+  }
+  debug(...args) { if (this._should('debug')) console.debug(`[${this.namespace}]`, ...args); }
+  info(...args)  { if (this._should('info'))  console.info(`[${this.namespace}]`, ...args); }
+  warn(...args)  { if (this._should('warn'))  console.warn(`[${this.namespace}]`, ...args); }
+  error(...args) { if (this._should('error')) console.error(`[${this.namespace}]`, ...args); }
+}

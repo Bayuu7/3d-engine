@@ -1,18 +1,17 @@
 /**
- * Placeholder
+ * TextureLoader (Stub)
  * --------------------------------------------------------------------
- * Intended role:
- * - This module belongs to a subsystem outlined in the project tree.
- *
- * Expansion guide:
- * - Define clear responsibilities and data flow for the subsystem.
- * - Implement classes and functions with strong cohesion and low coupling.
- * - Ensure integration with Engine via events/state/config as needed.
- *
- * Examples of integration:
- * - Editor tools talk to Engine and SceneManager via events.
- * - Resources loaders connect to AssetManager and cache.
- * - Physics integrates Transform and collisions with Scene entities.
- * - Networking mirrors entity state and input across clients/servers.
+ * Role:
+ * - Demonstrates how textures would be loaded and created.
+ * - For brevity, this returns a colored 1x1 texture synchronously.
  */
-export const TODO = true;
+export function createSolidTexture(gl, rgba) {
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  const data = new Uint8Array(rgba.map(v => Math.floor(v * 255)));
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.bindTexture(gl.TEXTURE_2D, null);
+  return tex;
+}

@@ -1,14 +1,14 @@
 /**
- * Placeholder
+ * Ray
  * --------------------------------------------------------------------
- * Intended role:
- * - Provide math primitives and utility classes required by advanced
- *   features (ray casting, bounding volumes, quaternions).
- *
- * Integration plan:
- * - Quaternion: integrate with Transform for rotation and TRS matrices.
- * - Ray: integrate with Raycaster, Collider, selection tools.
- * - BoundingBox/BoundingSphere: integrate with visibility/culling, physics.
- * - Vector2/Vector4: used across UI and shaders.
+ * Role:
+ * - Represents a ray with origin and direction for picking/collision.
  */
-export const TODO = true;
+import { Vector3 } from './Vector3.js';
+
+export class Ray {
+  constructor(origin = new Vector3(), direction = new Vector3(0,0,-1)) {
+    this.origin = origin.clone();
+    this.direction = direction.clone().normalize();
+  }
+}
