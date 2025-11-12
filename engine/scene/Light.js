@@ -1,18 +1,25 @@
 /**
- * Placeholder
+ * Light
  * --------------------------------------------------------------------
- * Intended role:
- * - This module belongs to a subsystem outlined in the project tree.
+ * Role:
+ * - Represents a light source (directional or point).
+ * - Stores color, intensity, and flags for enabled/disabled.
  *
- * Expansion guide:
- * - Define clear responsibilities and data flow for the subsystem.
- * - Implement classes and functions with strong cohesion and low coupling.
- * - Ensure integration with Engine via events/state/config as needed.
- *
- * Examples of integration:
- * - Editor tools talk to Engine and SceneManager via events.
- * - Resources loaders connect to AssetManager and cache.
- * - Physics integrates Transform and collisions with Scene entities.
- * - Networking mirrors entity state and input across clients/servers.
+ * Integration:
+ * - Renderer passes active lights to shaders via uniforms.
  */
-export const TODO = true;
+import { Vector3 } from '../core/Vector3.js';
+
+export class Light {
+  constructor(type = 'directional') {
+    this.type = type; // 'directional' | 'point'
+    this.color = [1,1,1];
+    this.intensity = 1.0;
+    this.enabled = true;
+
+    // Directional: direction vector
+    this.direction = new Vector3(0,-1,0);
+    // Point: position vector
+    this.position = new Vector3(0,0,0);
+  }
+}

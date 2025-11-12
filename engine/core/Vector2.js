@@ -1,14 +1,19 @@
 /**
- * Placeholder
+ * Vector2
  * --------------------------------------------------------------------
- * Intended role:
- * - Provide math primitives and utility classes required by advanced
- *   features (ray casting, bounding volumes, quaternions).
- *
- * Integration plan:
- * - Quaternion: integrate with Transform for rotation and TRS matrices.
- * - Ray: integrate with Raycaster, Collider, selection tools.
- * - BoundingBox/BoundingSphere: integrate with visibility/culling, physics.
- * - Vector2/Vector4: used across UI and shaders.
+ * Role:
+ * - 2D vector with common operations.
  */
-export const TODO = true;
+export class Vector2 {
+  constructor(x=0,y=0) { this.x=x; this.y=y; }
+  set(x,y){ this.x=x; this.y=y; return this; }
+  copy(v){ this.x=v.x; this.y=v.y; return this; }
+  clone(){ return new Vector2(this.x,this.y); }
+
+  add(v){ this.x+=v.x; this.y+=v.y; return this; }
+  sub(v){ this.x-=v.x; this.y-=v.y; return this; }
+  multiplyScalar(s){ this.x*=s; this.y*=s; return this; }
+
+  length(){ return Math.hypot(this.x,this.y); }
+  normalize(){ const l=this.length()||1; this.x/=l; this.y/=l; return this; }
+}

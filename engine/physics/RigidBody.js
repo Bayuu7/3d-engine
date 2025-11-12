@@ -1,18 +1,21 @@
 /**
- * Placeholder
+ * RigidBody
  * --------------------------------------------------------------------
- * Intended role:
- * - This module belongs to a subsystem outlined in the project tree.
+ * Role:
+ * - Physics component representing mass, velocity, and flags.
+ * - Supports gravity and simple integration.
  *
- * Expansion guide:
- * - Define clear responsibilities and data flow for the subsystem.
- * - Implement classes and functions with strong cohesion and low coupling.
- * - Ensure integration with Engine via events/state/config as needed.
- *
- * Examples of integration:
- * - Editor tools talk to Engine and SceneManager via events.
- * - Resources loaders connect to AssetManager and cache.
- * - Physics integrates Transform and collisions with Scene entities.
- * - Networking mirrors entity state and input across clients/servers.
+ * Flags:
+ * - useGravity: apply gravity force.
+ * - isKinematic: if true, not affected by physics.
  */
-export const TODO = true;
+import { Vector3 } from '../core/Vector3.js';
+
+export class RigidBody {
+  constructor(mass = 1) {
+    this.mass = mass;
+    this.velocity = new Vector3(0,0,0);
+    this.useGravity = true;
+    this.isKinematic = false;
+  }
+}

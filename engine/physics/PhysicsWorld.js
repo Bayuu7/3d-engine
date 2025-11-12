@@ -1,18 +1,33 @@
-/**
- * Placeholder
- * --------------------------------------------------------------------
- * Intended role:
- * - This module belongs to a subsystem outlined in the project tree.
- *
- * Expansion guide:
- * - Define clear responsibilities and data flow for the subsystem.
- * - Implement classes and functions with strong cohesion and low coupling.
- * - Ensure integration with Engine via events/state/config as needed.
- *
- * Examples of integration:
- * - Editor tools talk to Engine and SceneManager via events.
- * - Resources loaders connect to AssetManager and cache.
- * - Physics integrates Transform and collisions with Scene entities.
- * - Networking mirrors entity state and input across clients/servers.
- */
-export const TODO = true;
+import { Vector3 } from '../core/Vector3.js';
+
+export class PhysicsWorld {
+  constructor() {
+    this.gravity = new Vector3(0,-9.81,0);
+    this.colliders = [];
+  }
+
+  addCollider(c) { this.colliders.push(c); }
+
+  step(scene, dt) {
+    for (const e of scene.entities) {
+      const rb = e.getComponent('rigidBody');
+      if (!rb || rb.isKinematic) continue;
+      if (rb.useGravity) {
+        rb.velocity.y += this.gravity.y * dt;
+      }
+      e.transform.position.add(rb.velocity.clone().multiplyScalar(dt));
+
+      // Collision with ground plane (y=0)
+      for (const c of this.colliders) {
+        if (c.type==='plane') {
+          if (e.transform.position.y < c.offset) {
+            e.transform.position.y = c.offset;
+            rb.velocity.y = 0; // stop falling
+          }
+        }
+      }
+
+      e.transform.updateMatrix();
+    }
+  }
+}

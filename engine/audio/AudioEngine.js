@@ -1,18 +1,31 @@
 /**
- * Placeholder
+ * AudioEngine
  * --------------------------------------------------------------------
- * Intended role:
- * - This module belongs to a subsystem outlined in the project tree.
- *
- * Expansion guide:
- * - Define clear responsibilities and data flow for the subsystem.
- * - Implement classes and functions with strong cohesion and low coupling.
- * - Ensure integration with Engine via events/state/config as needed.
- *
- * Examples of integration:
- * - Editor tools talk to Engine and SceneManager via events.
- * - Resources loaders connect to AssetManager and cache.
- * - Physics integrates Transform and collisions with Scene entities.
- * - Networking mirrors entity state and input across clients/servers.
+ * Role:
+ * - Manages audio playback using Web Audio API.
+ * - Supports loading sounds, playing, pausing, stopping.
  */
-export const TODO = true;
+export class AudioEngine {
+  constructor() {
+    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    this.buffers = new Map();
+  }
+
+  async loadSound(name, url) {
+    const res = await fetch(url);
+    const arr = await res.arrayBuffer();
+    const buf = await this.ctx.decodeAudioData(arr);
+    this.buffers.set(name, buf);
+  }
+
+  play(name, loop=false) {
+    const buf = this.buffers.get(name);
+    if (!buf) return;
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    src.loop = loop;
+    src.connect(this.ctx.destination);
+    src.start();
+    return src;
+  }
+}

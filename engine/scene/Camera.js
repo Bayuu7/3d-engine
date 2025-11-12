@@ -1,18 +1,3 @@
-/**
- * Camera
- * --------------------------------------------------------------------
- * Role:
- * - Perspective camera providing view and projection matrices.
- *
- * Design:
- * - Stores position (via Transform), target, up vector.
- * - Computes view matrix with lookAt; projection with perspective.
- * - Has simple flags for orbit control (enabled by frontend tool).
- *
- * Integration:
- * - Renderer/RenderPipeline uses camera.view and camera.projection.
- * - Frontend can adjust fov/aspect/near/far when viewport resizes.
- */
 import { Transform } from './Transform.js';
 import { Vector3 } from '../core/Vector3.js';
 import { Matrix4 } from '../core/Matrix4.js';
@@ -46,23 +31,18 @@ export class Camera {
     this.target = new Vector3(0,0,0);
     this.up = new Vector3(0,1,0);
 
-    /** Projection params */
-    this.fov = 60;           // degrees
-    this.aspect = 1;         // updated by renderer on resize
+    this.fov = 60;
+    this.aspect = 1;
     this.near = 0.1;
     this.far = 1000;
 
-    /** Cached matrices */
     this.view = new Matrix4();
     this.projection = new Matrix4();
 
-    /** Flag: enable simple orbit controls */
     this.orbitEnabled = true;
-    /** Internal orbit angles (in radians) */
     this._yaw = 0;
     this._pitch = 0;
-    /** Orbit radius */
-    this._radius = 5;
+    this._radius = 6;
 
     this.updateMatrices();
   }
@@ -73,7 +53,6 @@ export class Camera {
     this.view = lookAt(eye, this.target, this.up);
   }
 
-  /** Simple orbit around target using yaw/pitch/radius. */
   orbit(deltaYaw, deltaPitch, deltaRadius = 0) {
     if (!this.orbitEnabled) return;
     this._yaw += deltaYaw;

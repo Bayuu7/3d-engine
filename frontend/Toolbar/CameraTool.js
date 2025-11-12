@@ -1,18 +1,42 @@
 /**
- * Placeholder
+ * CameraTool
  * --------------------------------------------------------------------
- * Intended role:
- * - This module belongs to a subsystem outlined in the project tree.
+ * Role:
+ * - Enables orbit controls for the active camera using mouse drag.
  *
- * Expansion guide:
- * - Define clear responsibilities and data flow for the subsystem.
- * - Implement classes and functions with strong cohesion and low coupling.
- * - Ensure integration with Engine via events/state/config as needed.
- *
- * Examples of integration:
- * - Editor tools talk to Engine and SceneManager via events.
- * - Resources loaders connect to AssetManager and cache.
- * - Physics integrates Transform and collisions with Scene entities.
- * - Networking mirrors entity state and input across clients/servers.
+ * Integration:
+ * - Listens to InputManager mouse events.
+ * - Updates camera orbit angles in Engine.
  */
-export const TODO = true;
+export function enableCameraTool(engine) {
+  const input = engine.input;
+  let dragging = false;
+  let lastX = 0, lastY = 0;
+
+  input.dom.addEventListener('mousedown', (e) => {
+    if (e.button === 0) { // left button
+      dragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+    }
+  });
+  input.dom.addEventListener('mouseup', (e) => {
+    if (e.button === 0) dragging = false;
+  });
+  input.dom.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
+    lastX = e.clientX;
+    lastY = e.clientY;
+
+    // Sensitivity factor
+    const sens = 0.005;
+    engine.camera.orbit(dx * sens, dy * sens);
+  });
+
+  // Scroll wheel for zoom
+  input.dom.addEventListener('wheel', (e) => {
+    engine.camera.orbit(0,0,e.deltaY*0.01);
+  });
+}

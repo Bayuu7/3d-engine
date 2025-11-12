@@ -1,18 +1,14 @@
 /**
- * Placeholder
+ * Collider
  * --------------------------------------------------------------------
- * Intended role:
- * - This module belongs to a subsystem outlined in the project tree.
- *
- * Expansion guide:
- * - Define clear responsibilities and data flow for the subsystem.
- * - Implement classes and functions with strong cohesion and low coupling.
- * - Ensure integration with Engine via events/state/config as needed.
- *
- * Examples of integration:
- * - Editor tools talk to Engine and SceneManager via events.
- * - Resources loaders connect to AssetManager and cache.
- * - Physics integrates Transform and collisions with Scene entities.
- * - Networking mirrors entity state and input across clients/servers.
+ * Role:
+ * - Simple collider component.
+ * - For now, only supports a ground plane at y=0.
  */
-export const TODO = true;
+export class Collider {
+  constructor(type = 'plane') {
+    this.type = type; // 'plane'
+    this.normal = { x: 0, y: 1, z: 0 };
+    this.offset = 0; // plane equation: n·p + offset = 0
+  }
+}
