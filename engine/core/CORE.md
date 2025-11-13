@@ -120,6 +120,42 @@ To reach **maximal core functionality**, the following additions are planned:
 
 ---
 
+## Structure Planning
+
+engine/scene/
+├─ core/                      # Core building blocks
+│  ├─ Entity.js
+│  ├─ Component.js
+│  ├─ Transform.js
+│  ├─ Node.js
+│  └─ index.js
+├─ management/                # Scene lifecycle
+│  ├─ Scene.js
+│  ├─ SceneManager.js
+│  └─ index.js
+├─ cameras-lights/            # Cameras and Lights
+│  ├─ Camera.js
+│  ├─ Light.js
+│  ├─ LightManager.js
+│  └─ index.js
+├─ renderables/               # 2D/3D renderable entities
+│  ├─ Sprite.js
+│  ├─ Text.js
+│  ├─ UIElement.js
+│  └─ index.js
+├─ advanced/                  # Advanced features
+│  ├─ Prefab.js
+│  ├─ Environment.js
+│  ├─ LOD.js
+│  ├─ LayerMask.js
+│  ├─ Visibility.js
+│  └─ index.js
+├─ constants/                 # Scene-wide constants
+│  └─ SceneConstants.js
+├─ utils/                     # Helper functions for scene
+│  └─ SceneUtils.js
+└─ index.js                   # Central entry point
+
 ## 🧭 Summary
 
 The `core/` folder is the **foundation** of DSRT Engine.  
