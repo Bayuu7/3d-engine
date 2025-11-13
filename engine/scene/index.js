@@ -1,18 +1,21 @@
 /**
- * Placeholder
- * --------------------------------------------------------------------
- * Intended role:
- * - This module belongs to a subsystem outlined in the project tree.
- *
- * Expansion guide:
- * - Define clear responsibilities and data flow for the subsystem.
- * - Implement classes and functions with strong cohesion and low coupling.
- * - Ensure integration with Engine via events/state/config as needed.
- *
- * Examples of integration:
- * - Editor tools talk to Engine and SceneManager via events.
- * - Resources loaders connect to AssetManager and cache.
- * - Physics integrates Transform and collisions with Scene entities.
- * - Networking mirrors entity state and input across clients/servers.
+ * Scene index.js
+ * Barrel file re-exporting all scene modules for clean imports elsewhere.
  */
-export const TODO = true;
+
+export { Component } from './Component.js';
+export { Transform } from './Transform.js';
+export { Entity } from './Entity.js';
+
+export { Scene } from './Scene.js';
+export { SceneManager } from './SceneManager.js';
+
+export { Camera } from './Camera.js';
+export { Light } from './Light.js';
+
+export { Sprite } from './Sprite.js';
+export { Text } from './Text.js';
+export { UIElement } from './UIElement.js';
+
+// (Additional modules available and to be documented/extended)
+// Environment.js, LightManager.js, Node.js, Prefab.js, LOD.js, LayerMask.js, Visibility.js
