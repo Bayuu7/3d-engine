@@ -122,39 +122,42 @@ To reach **maximal core functionality**, the following additions are planned:
 
 ## Structure Planning
 
-engine/scene/
-├─ core/                      # Core building blocks
-│  ├─ Entity.js
-│  ├─ Component.js
-│  ├─ Transform.js
-│  ├─ Node.js
-│  └─ index.js
-├─ management/                # Scene lifecycle
-│  ├─ Scene.js
-│  ├─ SceneManager.js
-│  └─ index.js
-├─ cameras-lights/            # Cameras and Lights
-│  ├─ Camera.js
-│  ├─ Light.js
-│  ├─ LightManager.js
-│  └─ index.js
-├─ renderables/               # 2D/3D renderable entities
-│  ├─ Sprite.js
-│  ├─ Text.js
-│  ├─ UIElement.js
-│  └─ index.js
-├─ advanced/                  # Advanced features
-│  ├─ Prefab.js
-│  ├─ Environment.js
-│  ├─ LOD.js
-│  ├─ LayerMask.js
-│  ├─ Visibility.js
-│  └─ index.js
-├─ constants/                 # Scene-wide constants
-│  └─ SceneConstants.js
-├─ utils/                     # Helper functions for scene
-│  └─ SceneUtils.js
-└─ index.js                   # Central entry point
+engine/core/
+├─ math/
+│  ├─ Vector2.js
+│  ├─ Vector3.js
+│  ├─ Vector4.js
+│  ├─ Matrix3.js
+│  ├─ Matrix4.js
+│  ├─ Quaternion.js
+│  ├─ Color.js
+│  ├─ MathUtils.js        # utilities (lerp, clamp, randomRange)
+│  └─ ColorUtils.js       # color conversions
+├─ bounding/
+│  ├─ BoundingBox.js
+│  ├─ BoundingSphere.js
+│  ├─ OBB.js
+│  ├─ Ray.js
+│  └─ Raycaster.js
+├─ engine/
+│  ├─ Engine.js
+│  ├─ Loop.js
+│  ├─ Clock.js
+│  ├─ State.js
+│  └─ Config.js
+├─ events/
+│  ├─ Event.js
+│  └─ EventEmitter.js
+├─ debug/
+│  ├─ PerformanceMonitor.js
+│  ├─ FrameLimiter.js
+│  └─ CrashHandler.js
+├─ security/
+│  ├─ SecurityManager.js
+│  └─ SecurityAudit.js
+└─ index.js                # central entry point
+
+---
 
 ## 🧭 Summary
 
