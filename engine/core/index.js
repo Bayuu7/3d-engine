@@ -1,14 +1,19 @@
-/**
- * Placeholder
- * --------------------------------------------------------------------
- * Intended role:
- * - Provide math primitives and utility classes required by advanced
- *   features (ray casting, bounding volumes, quaternions).
- *
- * Integration plan:
- * - Quaternion: integrate with Transform for rotation and TRS matrices.
- * - Ray: integrate with Raycaster, Collider, selection tools.
- * - BoundingBox/BoundingSphere: integrate with visibility/culling, physics.
- * - Vector2/Vector4: used across UI and shaders.
- */
-export const TODO = true;
+export { Vector2 } from './Vector2.js';
+export { Vector3 } from './Vector3.js';
+export { Vector4 } from './Vector4.js';
+export { Matrix3 } from './Matrix3.js';
+export { Matrix4 } from './Matrix4.js';
+export { Quaternion } from './Quaternion.js';
+export { BoundingBox } from './BoundingBox.js';
+export { BoundingSphere } from './BoundingSphere.js';
+export { OBB } from './OBB.js';
+export { Ray } from './Ray.js';
+export { Raycaster } from './Raycaster.js';
+export { Clock } from './Clock.js';
+export { Loop } from './Loop.js';
+export { Engine } from './Engine.js';
+export { State } from './State.js';
+export { Event } from './Event.js';
+export { EventEmitter } from './EventEmitter.js';
+export { Config } from './Config.js';
+export { Color } from './Color.js';
