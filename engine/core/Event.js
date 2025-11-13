@@ -1,20 +1,20 @@
 /**
- * Event
- * --------------------------------------------------------------------
- * Role:
- * - Lightweight event payload object (type + detail + timestamp).
- * - Useful for standardized payloads across subsystems.
- *
- * Integration:
- * - Used with EventEmitter (utils) to publish/sub events.
+ * Event class
+ * Represents a generic event in the engine.
+ * Used with EventEmitter for communication between subsystems.
  */
-export class Event {
-  constructor(type, detail = {}) {
-    /** Event type string (e.g., "input:key", "scene:changed"). */
+class Event {
+  constructor(type, payload = {}) {
+    // Type of the event (string identifier)
     this.type = type;
-    /** Arbitrary detail payload. */
-    this.detail = detail;
-    /** Creation timestamp in ms. */
-    this.time = performance.now();
+    // Payload data attached to the event
+    this.payload = payload;
+
+    // Boolean flag: event is valid
+    this.isValid = true;
+    // Boolean flag: event has been handled
+    this.handled = false;
   }
 }
+
+export { Event };
