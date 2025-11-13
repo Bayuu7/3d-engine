@@ -1,147 +1,86 @@
-import { Clock } from '../core/Clock.js';
-import { Loop } from '../core/Loop.js';
-import { State } from '../core/State.js';
-import { Config } from '../core/Config.js';
-import { Scene } from '../scene/Scene.js';
-import { SceneManager } from '../scene/SceneManager.js';
-import { Renderer } from '../graphics/Renderer.js';
-import { InputManager } from '../input/InputManager.js';
-import { Camera } from '../scene/Camera.js';
-import { Light } from '../scene/Light.js';
-import { LightManager } from '../scene/LightManager.js';
-import { Shader } from '../graphics/Shader.js';
-import { Material } from '../graphics/Material.js';
-import { MeshRenderer } from '../graphics/MeshRenderer.js';
-import { VS_PHONG_TINT, FS_PHONG_TINT } from '../graphics/shaders_phong_tint.js';
-import { createCubeGeometry } from '../graphics/GeometryCube.js';
-import { createPlaneGeometry } from '../graphics/GeometryPlane.js';
-import { Vector3 } from '../core/Vector3.js';
-import { Entity } from '../scene/Entity.js';
-import { PhysicsEngine } from '../physics/PhysicsEngine.js';
-import { RigidBody } from '../physics/RigidBody.js';
-import { Collider } from '../physics/Collider.js';
-import { Frustum } from '../core/Frustum.js';
-import { Matrix4 } from '../core/Matrix4.js';
+import { Loop } from './Loop.js';
+import { Clock } from './Clock.js';
+import { State } from './State.js';
+import { Config } from './Config.js';
 
-export class Engine {
+/**
+ * Engine class
+ * The main entry point for running the DSRT engine.
+ * Manages the loop, state, and subsystems (physics, audio, rendering).
+ */
+class Engine {
   constructor(canvas) {
+    // Canvas element for rendering
+    this.canvas = canvas;
+
+    // Core subsystems
+    this.clock = new Clock(true);
+    this.loop = new Loop(this);
     this.state = new State();
-    this.clock = new Clock();
-    this.sceneManager = new SceneManager();
-    this.renderer = new Renderer(canvas, Config.renderer);
-    this.input = new InputManager(canvas);
 
-    const scene = new Scene('DefaultScene');
-    this.sceneManager.setActive(scene);
-
-    // Camera
-    this.camera = new Camera();
-    this.camera.transform.position.set(0, 4, 10);
-    this.camera.target = new Vector3(0, 0, 0);
-    this.renderer.camera = this.camera;
-
-    // LightManager
-    this.lightManager = new LightManager();
-    const dirLightEntity = new Entity('DirLight');
-    const dirLight = new Light('directional');
-    dirLight.direction = new Vector3(-0.5, -1, -0.3);
-    dirLight.color = [1,1,1];
-    dirLight.intensity = 1.0;
-    dirLightEntity.addComponent('light', dirLight);
-    scene.add(dirLightEntity);
-    this.lightManager.add(dirLight);
-
-    const gl = this.renderer.gl;
-    const shader = new Shader(gl, VS_PHONG_TINT, FS_PHONG_TINT);
-    const material = new Material(shader);
-
-    // Ground
-    const groundGeometry = createPlaneGeometry(gl, 20);
-    const groundRenderer = new MeshRenderer(gl, groundGeometry, material);
-    const ground = new Entity('Ground');
-    ground.addComponent('meshRenderer', groundRenderer);
-    ground.addComponent('collider', new Collider('plane'));
-    ground.transform.setPosition(0, 0, 0);
-    scene.add(ground);
-
-    // Animated cube
-    const cubeGeom = createCubeGeometry(gl);
-    const cubeRenderer = new MeshRenderer(gl, cubeGeom, material);
-    const cube = new Entity('Cube');
-    cube.addComponent('meshRenderer', cubeRenderer);
-    cube.addComponent('rigidBody', new RigidBody(1));
-    cube.transform.setPosition(0, 3, 0);
-    scene.add(cube);
-
-    // Physics
-    this.physics = new PhysicsEngine();
-    this.physics.world.addCollider(new Collider('plane'));
-
-    // Culling helpers
-    this._frustum = new Frustum();
-    this._culledCount = 0;
-
-    // Main loop
-    this.loop = new Loop(() => {
-      const dt = this.clock.tick();
-      if (dt <= 0) return;
-      this.update(dt);
-      this.render();
-    });
+    // Boolean flag: engine is initialized
+    this.initialized = false;
+    // Boolean flag: engine is currently running
+    this.running = false;
+    // Boolean flag: enable debug logging
+    this.debugMode = Config.debugMode;
   }
 
-  start() { this.clock.start(); this.loop.start(); }
-  stop() { this.loop.stop(); this.clock.stop(); }
-
-  update(dt) {
-    this.camera.updateMatrices();
-    const scene = this.sceneManager.active;
-
-    // Transforms and animation
-    for (const e of scene.entities) {
-      const animator = e.getComponent('animator');
-      if (animator) animator.update(e, dt);
-
-      if (!e.active) continue;
-      if (e.transform._dirty) e.transform.updateMatrix();
+  /**
+   * Initializes the engine.
+   * Sets up rendering context and subsystems.
+   */
+  init() {
+    this.initialized = true;
+    if (this.debugMode) {
+      console.log('[Engine] Initialized');
     }
-
-    // Physics
-    this.physics.update(scene, dt);
   }
 
+  /**
+   * Starts the engine loop.
+   */
+  start() {
+    if (!this.initialized) this.init();
+    this.running = true;
+    this.loop.start();
+    if (this.debugMode) {
+      console.log('[Engine] Started');
+    }
+  }
+
+  /**
+   * Stops the engine loop.
+   */
+  stop() {
+    this.running = false;
+    this.loop.stop();
+    if (this.debugMode) {
+      console.log('[Engine] Stopped');
+    }
+  }
+
+  /**
+   * Updates the engine state.
+   * Called every frame by Loop.
+   */
+  update(delta) {
+    if (this.debugMode) {
+      console.log('[Engine] Update with delta:', delta);
+    }
+    // Update subsystems here (physics, scene, audio)
+  }
+
+  /**
+   * Renders the current frame.
+   * Called every frame by Loop.
+   */
   render() {
-    const scene = this.sceneManager.active;
-    const gl = this.renderer.gl;
-    const bg = scene.environment.backgroundColor;
-    this.renderer.setClearColor(bg[0], bg[1], bg[2], bg[3]);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    // Build view-projection and frustum
-    const vp = new Matrix4().multiply(this.camera.projection, this.camera.view);
-    this._frustum.setFromMatrix(vp);
-    this._culledCount = 0;
-
-    const dirLight = this.lightManager.getActiveLights()[0];
-
-    for (const e of scene.entities) {
-      const mr = e.getComponent('meshRenderer');
-      if (!mr || !mr.visible) continue;
-
-      const aabb = mr.getWorldAABB(e.transform);
-      if (!this._frustum.boxInFrustum(aabb.min, aabb.max)) {
-        this._culledCount++;
-        continue;
-      }
-
-      mr.draw(
-        e.transform.modelMatrix,
-        this.camera.view,
-        this.camera.projection,
-        this.camera,
-        dirLight,
-        { selected: this.sceneManager.selected === e }
-      );
+    if (this.debugMode) {
+      console.log('[Engine] Render frame');
     }
+    // Rendering logic goes here
   }
 }
+
+export { Engine };
