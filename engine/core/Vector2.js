@@ -1,19 +1,54 @@
 /**
- * Vector2
- * --------------------------------------------------------------------
- * Role:
- * - 2D vector with common operations.
+ * Vector2 class
+ * Represents a 2D vector with x and y components.
+ * Used in 2D graphics, physics, and UI.
  */
-export class Vector2 {
-  constructor(x=0,y=0) { this.x=x; this.y=y; }
-  set(x,y){ this.x=x; this.y=y; return this; }
-  copy(v){ this.x=v.x; this.y=v.y; return this; }
-  clone(){ return new Vector2(this.x,this.y); }
+class Vector2 {
+  constructor(x = 0, y = 0) {
+    this.x = x;
+    this.y = y;
 
-  add(v){ this.x+=v.x; this.y+=v.y; return this; }
-  sub(v){ this.x-=v.x; this.y-=v.y; return this; }
-  multiplyScalar(s){ this.x*=s; this.y*=s; return this; }
+    this.isValid = true;
+    this.debugMode = false;
+  }
 
-  length(){ return Math.hypot(this.x,this.y); }
-  normalize(){ const l=this.length()||1; this.x/=l; this.y/=l; return this; }
+  add(v) {
+    this.x += v.x;
+    this.y += v.y;
+    if (this.debugMode) {
+      console.log('[Vector2] Added vector:', v);
+    }
+    return this;
+  }
+
+  sub(v) {
+    this.x -= v.x;
+    this.y -= v.y;
+    if (this.debugMode) {
+      console.log('[Vector2] Subtracted vector:', v);
+    }
+    return this;
+  }
+
+  dot(v) {
+    const result = this.x * v.x + this.y * v.y;
+    if (this.debugMode) {
+      console.log('[Vector2] Dot product:', result);
+    }
+    return result;
+  }
+
+  normalize() {
+    const length = Math.sqrt(this.x * this.x + this.y * this.y);
+    if (length > 0) {
+      this.x /= length;
+      this.y /= length;
+    }
+    if (this.debugMode) {
+      console.log('[Vector2] Normalized:', this);
+    }
+    return this;
+  }
 }
+
+export { Vector2 };
