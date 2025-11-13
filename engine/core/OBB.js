@@ -1,46 +1,48 @@
 import { Vector3 } from './Vector3.js';
 
 /**
- * OBB
- * --------------------------------------------------------------------
- * Role:
- * - Oriented bounding box defined by center, axes (u,v,w), and half-extents.
- * - For picking against rotated/scaled meshes.
+ * OBB class (Oriented Bounding Box)
+ * Represents a bounding box that can be rotated in 3D space.
+ * More accurate than AABB for rotated objects.
  */
-export class OBB {
-  constructor(center=new Vector3(), half=new Vector3(0.5,0.5,0.5), axes=[new Vector3(1,0,0), new Vector3(0,1,0), new Vector3(0,0,1)]) {
-    this.center = center;
-    this.half = half;
-    this.axes = axes; // 3 orthonormal axes
+class OBB {
+  constructor(center = new Vector3(), halfSizes = new Vector3(1, 1, 1), rotationMatrix = null) {
+    this.center = center;          // Center of the box
+    this.halfSizes = halfSizes;    // Half dimensions along each axis
+    this.rotationMatrix = rotationMatrix; // Orientation of the box
+
+    this.isValid = true;
+    this.debugMode = false;
   }
 
-  // Ray-OBB test: project ray onto axes and solve slabs
-  rayIntersect(ray) {
-    let tMin = -Infinity;
-    let tMax = Infinity;
-    const p = new Vector3().copy(this.center).sub(ray.origin);
+  /**
+   * Checks if a point is inside the OBB.
+   */
+  containsPoint(point) {
+    // Transform point into local space of the OBB
+    const local = new Vector3(
+      point.x - this.center.x,
+      point.y - this.center.y,
+      point.z - this.center.z
+    );
 
-    for (let i=0;i<3;i++){
-      const a = this.axes[i];
-      const e = a.x*p.x + a.y*p.y + a.z*p.z;
-      const f = a.x*ray.direction.x + a.y*ray.direction.y + a.z*ray.direction.z;
-
-      if (Math.abs(f) > 1e-6) {
-        const t1 = (e + this.half.getComponent(i)) / f;
-        const t2 = (e - this.half.getComponent(i)) / f;
-        const tNear = Math.min(t1,t2), tFar = Math.max(t1,t2);
-        tMin = Math.max(tMin, tNear);
-        tMax = Math.min(tMax, tFar);
-        if (tMin > tMax) return null;
-      } else {
-        // Ray parallel to slab; reject if outside
-        if (-e - this.half.getComponent(i) > 0 || -e + this.half.getComponent(i) < 0) return null;
-      }
+    // If rotationMatrix exists, apply inverse rotation
+    if (this.rotationMatrix) {
+      // Simplified: assume rotationMatrix has applyToVector3 method
+      local = this.rotationMatrix.applyToVector3(local);
     }
-    if (tMax < 0) return null;
-    return tMin >= 0 ? tMin : tMax;
+
+    const inside =
+      Math.abs(local.x) <= this.halfSizes.x &&
+      Math.abs(local.y) <= this.halfSizes.y &&
+      Math.abs(local.z) <= this.halfSizes.z;
+
+    if (this.debugMode) {
+      console.log('[OBB] Contains point?', inside);
+    }
+
+    return inside;
   }
 }
 
-// helper to get component of Vector3 by index
-Vector3.prototype.getComponent = function(i){ return i===0?this.x:i===1?this.y:this.z; };
+export { OBB };
