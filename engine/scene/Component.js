@@ -49,5 +49,4 @@ class Component {
   }
 }
 
-export { Componen
-        t };
+export { Component };
