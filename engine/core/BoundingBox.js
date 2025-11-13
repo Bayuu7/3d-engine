@@ -1,18 +1,28 @@
+// Import Vector3 because a bounding box works with 3D points
 import { Vector3 } from './Vector3.js';
 
 /**
  * BoundingBox class
- * Axis-aligned bounding box used across physics, raycasting, and scene culling.
+ * Represents an axis-aligned bounding box (AABB).
+ * Used in physics, raycasting, and scene culling.
  */
 class BoundingBox {
   constructor(min = new Vector3(), max = new Vector3()) {
+    // Minimum corner of the box (x, y, z)
     this.min = min;
+    // Maximum corner of the box (x, y, z)
     this.max = max;
 
-    this.isValid = true;     // Flag: box is valid
-    this.debugMode = false;  // Flag: enable debug logging
+    // Boolean flag: indicates if the box is valid
+    this.isValid = true;
+    // Boolean flag: enables debug logging
+    this.debugMode = false;
   }
 
+  /**
+   * Expands the bounding box to include a new point.
+   * This is used when adding vertices of a mesh or updating physics bounds.
+   */
   expandByPoint(point) {
     this.min.x = Math.min(this.min.x, point.x);
     this.min.y = Math.min(this.min.y, point.y);
@@ -29,6 +39,10 @@ class BoundingBox {
     }
   }
 
+  /**
+   * Checks if a point is inside the bounding box.
+   * Useful for hit detection and spatial queries.
+   */
   containsPoint(point) {
     const inside =
       point.x >= this.min.x &&
@@ -45,6 +59,10 @@ class BoundingBox {
     return inside;
   }
 
+  /**
+   * Checks if another bounding box intersects with this one.
+   * Used in collision detection and broadphase physics.
+   */
   intersectsBox(box) {
     const intersects =
       this.max.x >= box.min.x &&
