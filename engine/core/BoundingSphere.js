@@ -1,34 +1,61 @@
-/**
- * BoundingSphere
- * --------------------------------------------------------------------
- * Role:
- * - Simple bounding volume defined by center + radius.
- * - Useful for quick intersection tests.
- */
+// Import Vector3 because a sphere needs a center point
 import { Vector3 } from './Vector3.js';
 
-export class BoundingSphere {
-  constructor(center=new Vector3(), radius=0) {
-    this.center=center; this.radius=radius;
+/**
+ * BoundingSphere class
+ * Represents a sphere used for collision detection and spatial queries.
+ */
+class BoundingSphere {
+  constructor(center = new Vector3(), radius = 1) {
+    // Center of the sphere
+    this.center = center;
+    // Radius of the sphere
+    this.radius = radius;
+
+    // Boolean flag: indicates if the sphere is valid
+    this.isValid = true;
+    // Boolean flag: enables debug logging
+    this.debugMode = false;
   }
 
-  setFromPoints(points) {
-    // naive: compute average center, then max distance
-    this.center.set(0,0,0);
-    for (const p of points) {
-      this.center.x+=p.x; this.center.y+=p.y; this.center.z+=p.z;
+  /**
+   * Checks if a point is inside the sphere.
+   * Useful for quick hit tests.
+   */
+  containsPoint(point) {
+    const dx = point.x - this.center.x;
+    const dy = point.y - this.center.y;
+    const dz = point.z - this.center.z;
+    const distanceSq = dx * dx + dy * dy + dz * dz;
+
+    const inside = distanceSq <= this.radius * this.radius;
+
+    if (this.debugMode) {
+      console.log('[BoundingSphere] Contains point?', inside);
     }
-    this.center.x/=points.length; this.center.y/=points.length; this.center.z/=points.length;
-    this.radius=0;
-    for (const p of points) {
-      const dx=p.x-this.center.x, dy=p.y-this.center.y, dz=p.z-this.center.z;
-      this.radius=Math.max(this.radius, Math.hypot(dx,dy,dz));
-    }
-    return this;
+
+    return inside;
   }
 
-  containsPoint(p) {
-    const dx=p.x-this.center.x, dy=p.y-this.center.y, dz=p.z-this.center.z;
-    return (dx*dx+dy*dy+dz*dz) <= this.radius*this.radius;
+  /**
+   * Checks if another sphere intersects with this one.
+   * Used in broadphase collision detection.
+   */
+  intersectsSphere(sphere) {
+    const dx = sphere.center.x - this.center.x;
+    const dy = sphere.center.y - this.center.y;
+    const dz = sphere.center.z - this.center.z;
+    const distanceSq = dx * dx + dy * dy + dz * dz;
+
+    const radiusSum = this.radius + sphere.radius;
+    const intersects = distanceSq <= radiusSum * radiusSum;
+
+    if (this.debugMode) {
+      console.log('[BoundingSphere] Intersects other sphere?', intersects);
+    }
+
+    return intersects;
   }
 }
+
+export { BoundingSphere };
