@@ -1,25 +1,60 @@
 /**
- * EventEmitter
- * --------------------------------------------------------------------
- * Role:
- * - Lightweight pub/sub for engine subsystems and UI.
+ * EventEmitter class
+ * Provides a publish/subscribe system for engine events.
  */
-export class EventEmitter {
+class EventEmitter {
   constructor() {
-    this._listeners = new Map();
+    // Map of event listeners
+    this.listeners = {};
+
+    // Boolean flag: emitter is active
+    this.active = true;
+    // Boolean flag: enable debug logging
+    this.debugMode = false;
   }
-  on(type, fn) {
-    if (!this._listeners.has(type)) this._listeners.set(type, new Set());
-    this._listeners.get(type).add(fn);
+
+  /**
+   * Registers a listener for a specific event type.
+   */
+  on(type, callback) {
+    if (!this.listeners[type]) {
+      this.listeners[type] = [];
+    }
+    this.listeners[type].push(callback);
+
+    if (this.debugMode) {
+      console.log(`[EventEmitter] Listener added for event: ${type}`);
+    }
   }
-  off(type, fn) {
-    const set = this._listeners.get(type);
-    if (!set) return;
-    set.delete(fn);
+
+  /**
+   * Removes a listener for a specific event type.
+   */
+  off(type, callback) {
+    if (!this.listeners[type]) return;
+    this.listeners[type] = this.listeners[type].filter(cb => cb !== callback);
+
+    if (this.debugMode) {
+      console.log(`[EventEmitter] Listener removed for event: ${type}`);
+    }
   }
-  emit(type, payload={}) {
-    const set = this._listeners.get(type);
-    if (!set) return;
-    for (const fn of set) fn(payload);
+
+  /**
+   * Emits an event to all registered listeners.
+   */
+  emit(event) {
+    if (!this.active || !this.listeners[event.type]) return;
+
+    for (const callback of this.listeners[event.type]) {
+      callback(event.payload);
+    }
+
+    event.handled = true;
+
+    if (this.debugMode) {
+      console.log(`[EventEmitter] Event emitted: ${event.type}`, event.payload);
+    }
   }
 }
+
+export { EventEmitter };
