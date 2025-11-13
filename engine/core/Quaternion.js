@@ -1,43 +1,44 @@
+import { Matrix4 } from './Matrix4.js';
+
 /**
- * Quaternion
- * --------------------------------------------------------------------
- * Role:
- * - Represents rotation in 3D space.
- * - Avoids gimbal lock compared to Euler angles.
- *
- * Integration:
- * - Used in Transform for rotation.
- * - Can be converted to/from rotation matrices.
+ * Quaternion class
+ * Represents a quaternion used for 3D rotations.
  */
-export class Quaternion {
-  constructor(x=0,y=0,z=0,w=1) {
-    this.x=x; this.y=y; this.z=z; this.w=w;
+class Quaternion {
+  constructor(x = 0, y = 0, z = 0, w = 1) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+    this.w = w;
+
+    this.isValid = true;
+    this.debugMode = false;
   }
 
-  set(x,y,z,w) { this.x=x; this.y=y; this.z=z; this.w=w; return this; }
-  copy(q) { this.x=q.x; this.y=q.y; this.z=q.z; this.w=q.w; return this; }
-  clone() { return new Quaternion(this.x,this.y,this.z,this.w); }
+  /**
+   * Sets quaternion from axis-angle.
+   */
+  setFromAxisAngle(axis, angle) {
+    const halfAngle = angle / 2;
+    const s = Math.sin(halfAngle);
+    this.x = axis.x * s;
+    this.y = axis.y * s;
+    this.z = axis.z * s;
+    this.w = Math.cos(halfAngle);
 
-  normalize() {
-    const l = Math.hypot(this.x,this.y,this.z,this.w);
-    if (l===0) { this.x=0; this.y=0; this.z=0; this.w=1; }
-    else { this.x/=l; this.y/=l; this.z/=l; this.w/=l; }
-    return this;
+    if (this.debugMode) {
+      console.log('[Quaternion] Set from axis-angle:', axis, angle);
+    }
   }
 
-  multiply(q) {
-    const ax=this.x, ay=this.y, az=this.z, aw=this.w;
-    const bx=q.x, by=q.y, bz=q.z, bw=q.w;
-    this.x = aw*bx + ax*bw + ay*bz - az*by;
-    this.y = aw*by - ax*bz + ay*bw + az*bx;
-    this.z = aw*bz + ax*by - ay*bx + az*bw;
-    this.w = aw*bw - ax*bx - ay*by - az*bz;
-    return this;
-  }
-
-  setFromAxisAngle(axis, angleRad) {
-    const half=angleRad/2, s=Math.sin(half);
-    this.x=axis.x*s; this.y=axis.y*s; this.z=axis.z*s; this.w=Math.cos(half);
-    return this;
+  /**
+   * Converts quaternion to Matrix4 rotation.
+   */
+  toMatrix4() {
+    const m = new Matrix4();
+    m.compose({ x: 0, y: 0, z: 0 }, this, { x: 1, y: 1, z: 1 });
+    return m;
   }
 }
+
+export { Quaternion };
