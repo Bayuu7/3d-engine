@@ -2,29 +2,26 @@
  * HierarchyPanel
  * --------------------------------------------------------------------
  * Role:
- * - Lists entities in the active scene and allows selection.
- *
- * Integration:
- * - Emits 'ui:select-entity' via engine.sceneManager.events when clicked.
- * - Inspector and GizmoOverlay listen to this event to update their views.
+ * - Lists entities in active scene.
+ * - Emits ui:select-entity when clicked.
  */
 export function createHierarchyPanel(root, engine) {
-  const renderList = () => {
+  const render = () => {
     root.innerHTML = '<div class="panel"><div class="section-title">Hierarchy</div></div>';
     const panel = root.querySelector('.panel');
+
+    const list = document.createElement('div');
+    list.className = 'entity-list';
     for (const e of engine.sceneManager.active.entities) {
       const item = document.createElement('div');
-      item.className = 'item';
+      item.className = 'entity-item';
       item.textContent = e.name;
-      item.onclick = () => {
-        engine.sceneManager.events.emit('ui:select-entity', { entity: e });
-      };
-      panel.appendChild(item);
+      item.onclick = () => engine.sceneManager.events.emit('ui:select-entity', { entity: e });
+      list.appendChild(item);
     }
+    panel.appendChild(list);
   };
 
-  renderList();
-
-  // Re-render when the scene changes
-  engine.sceneManager.events.on('scene:changed', renderList);
+  engine.sceneManager.events.on('scene:changed', render);
+  render();
 }

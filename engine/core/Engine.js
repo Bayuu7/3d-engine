@@ -1,7 +1,7 @@
-import { Clock } from './Clock.js';
-import { Loop } from './Loop.js';
-import { State } from './State.js';
-import { Config } from './Config.js';
+import { Clock } from '../core/Clock.js';
+import { Loop } from '../core/Loop.js';
+import { State } from '../core/State.js';
+import { Config } from '../core/Config.js';
 import { Scene } from '../scene/Scene.js';
 import { SceneManager } from '../scene/SceneManager.js';
 import { Renderer } from '../graphics/Renderer.js';
@@ -12,14 +12,16 @@ import { LightManager } from '../scene/LightManager.js';
 import { Shader } from '../graphics/Shader.js';
 import { Material } from '../graphics/Material.js';
 import { MeshRenderer } from '../graphics/MeshRenderer.js';
-import { VS_PHONG_MULTI, FS_PHONG_MULTI } from '../graphics/shaders_phong_multi.js';
+import { VS_PHONG_TINT, FS_PHONG_TINT } from '../graphics/shaders_phong_tint.js';
 import { createCubeGeometry } from '../graphics/GeometryCube.js';
 import { createPlaneGeometry } from '../graphics/GeometryPlane.js';
-import { Vector3 } from './Vector3.js';
+import { Vector3 } from '../core/Vector3.js';
 import { Entity } from '../scene/Entity.js';
 import { PhysicsEngine } from '../physics/PhysicsEngine.js';
 import { RigidBody } from '../physics/RigidBody.js';
 import { Collider } from '../physics/Collider.js';
+import { Frustum } from '../core/Frustum.js';
+import { Matrix4 } from '../core/Matrix4.js';
 
 export class Engine {
   constructor(canvas) {
@@ -34,14 +36,12 @@ export class Engine {
 
     // Camera
     this.camera = new Camera();
-    this.camera.transform.setPosition(0, 4, 10);
+    this.camera.transform.position.set(0, 4, 10);
     this.camera.target = new Vector3(0, 0, 0);
     this.renderer.camera = this.camera;
 
     // LightManager
     this.lightManager = new LightManager();
-
-    // Directional light
     const dirLightEntity = new Entity('DirLight');
     const dirLight = new Light('directional');
     dirLight.direction = new Vector3(-0.5, -1, -0.3);
@@ -51,20 +51,11 @@ export class Engine {
     scene.add(dirLightEntity);
     this.lightManager.add(dirLight);
 
-    // Cube entity with rigid body
     const gl = this.renderer.gl;
-    const shader = new Shader(gl, VS_PHONG_MULTI, FS_PHONG_MULTI);
+    const shader = new Shader(gl, VS_PHONG_TINT, FS_PHONG_TINT);
     const material = new Material(shader);
-    const geometry = createCubeGeometry(gl);
-    const cubeRenderer = new MeshRenderer(gl, geometry, material);
 
-    const cube = new Entity('Cube');
-    cube.addComponent('meshRenderer', cubeRenderer);
-    cube.addComponent('rigidBody', new RigidBody(1));
-    cube.transform.setPosition(0, 3, 0); // start above ground
-    scene.add(cube);
-
-    // Ground plane entity
+    // Ground
     const groundGeometry = createPlaneGeometry(gl, 20);
     const groundRenderer = new MeshRenderer(gl, groundGeometry, material);
     const ground = new Entity('Ground');
@@ -73,9 +64,22 @@ export class Engine {
     ground.transform.setPosition(0, 0, 0);
     scene.add(ground);
 
-    // Physics engine
+    // Animated cube
+    const cubeGeom = createCubeGeometry(gl);
+    const cubeRenderer = new MeshRenderer(gl, cubeGeom, material);
+    const cube = new Entity('Cube');
+    cube.addComponent('meshRenderer', cubeRenderer);
+    cube.addComponent('rigidBody', new RigidBody(1));
+    cube.transform.setPosition(0, 3, 0);
+    scene.add(cube);
+
+    // Physics
     this.physics = new PhysicsEngine();
     this.physics.world.addCollider(new Collider('plane'));
+
+    // Culling helpers
+    this._frustum = new Frustum();
+    this._culledCount = 0;
 
     // Main loop
     this.loop = new Loop(() => {
@@ -92,10 +96,17 @@ export class Engine {
   update(dt) {
     this.camera.updateMatrices();
     const scene = this.sceneManager.active;
+
+    // Transforms and animation
     for (const e of scene.entities) {
+      const animator = e.getComponent('animator');
+      if (animator) animator.update(e, dt);
+
       if (!e.active) continue;
       if (e.transform._dirty) e.transform.updateMatrix();
     }
+
+    // Physics
     this.physics.update(scene, dt);
   }
 
@@ -106,18 +117,31 @@ export class Engine {
     this.renderer.setClearColor(bg[0], bg[1], bg[2], bg[3]);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    const lights = this.lightManager.getActiveLights();
+    // Build view-projection and frustum
+    const vp = new Matrix4().multiply(this.camera.projection, this.camera.view);
+    this._frustum.setFromMatrix(vp);
+    this._culledCount = 0;
+
+    const dirLight = this.lightManager.getActiveLights()[0];
+
     for (const e of scene.entities) {
       const mr = e.getComponent('meshRenderer');
-      if (mr && mr.visible) {
-        mr.draw(
-          e.transform.modelMatrix,
-          this.camera.view,
-          this.camera.projection,
-          this.camera,
-          lights
-        );
+      if (!mr || !mr.visible) continue;
+
+      const aabb = mr.getWorldAABB(e.transform);
+      if (!this._frustum.boxInFrustum(aabb.min, aabb.max)) {
+        this._culledCount++;
+        continue;
       }
+
+      mr.draw(
+        e.transform.modelMatrix,
+        this.camera.view,
+        this.camera.projection,
+        this.camera,
+        dirLight,
+        { selected: this.sceneManager.selected === e }
+      );
     }
   }
 }

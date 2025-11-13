@@ -1,18 +1,38 @@
 /**
- * Placeholder
+ * Animator
  * --------------------------------------------------------------------
- * Intended role:
- * - This module belongs to a subsystem outlined in the project tree.
- *
- * Expansion guide:
- * - Define clear responsibilities and data flow for the subsystem.
- * - Implement classes and functions with strong cohesion and low coupling.
- * - Ensure integration with Engine via events/state/config as needed.
- *
- * Examples of integration:
- * - Editor tools talk to Engine and SceneManager via events.
- * - Resources loaders connect to AssetManager and cache.
- * - Physics integrates Transform and collisions with Scene entities.
- * - Networking mirrors entity state and input across clients/servers.
+ * Role:
+ * - Holds multiple tracks, applies to entity over time.
  */
-export const TODO = true;
+export class Animator {
+  constructor() {
+    this.tracks = []; // array of KeyframeTrack
+    this.time = 0;
+    this.playing = true;
+    this.loop = true;
+    this.length = 0; // max track time
+  }
+
+  addTrack(track) {
+    this.tracks.push(track);
+    this.length = Math.max(this.length, track.times[track.times.length-1] || 0);
+    return track;
+  }
+
+  update(entity, dt) {
+    if (!this.playing) return;
+    this.time += dt;
+    if (this.loop && this.length > 0) this.time = this.time % this.length;
+
+    for (const tr of this.tracks) {
+      const v = tr.evaluate(this.time);
+      if (v == null) continue;
+      // Apply to path
+      const parts = tr.path.split('.');
+      let obj = entity;
+      for (let i=0;i<parts.length-1;i++) obj = obj[parts[i]];
+      obj[parts[parts.length-1]] = v;
+    }
+    entity.transform.updateMatrix();
+  }
+}

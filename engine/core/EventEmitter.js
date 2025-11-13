@@ -1,0 +1,25 @@
+/**
+ * EventEmitter
+ * --------------------------------------------------------------------
+ * Role:
+ * - Lightweight pub/sub for engine subsystems and UI.
+ */
+export class EventEmitter {
+  constructor() {
+    this._listeners = new Map();
+  }
+  on(type, fn) {
+    if (!this._listeners.has(type)) this._listeners.set(type, new Set());
+    this._listeners.get(type).add(fn);
+  }
+  off(type, fn) {
+    const set = this._listeners.get(type);
+    if (!set) return;
+    set.delete(fn);
+  }
+  emit(type, payload={}) {
+    const set = this._listeners.get(type);
+    if (!set) return;
+    for (const fn of set) fn(payload);
+  }
+}
