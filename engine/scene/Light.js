@@ -49,5 +49,4 @@ class Light extends Entity {
   }
 }
 
-export { Ligh
-        t };
+export { Light };
